@@ -394,7 +394,7 @@ class Unpickler(object):
         method = _obj_setattr
         deferred = {}
 
-        for k, v in sorted(obj.items(), key=util.itemgetter):
+        for k, v in obj.items():
             # ignore the reserved attribute
             if ignorereserved and k in tags.RESERVED:
                 continue
@@ -504,7 +504,7 @@ class Unpickler(object):
     def _restore_dict(self, obj):
         data = {}
         restore_key = self._restore_key_fn()
-        for k, v in sorted(obj.items(), key=util.itemgetter):
+        for k, v in obj.items():
             if isinstance(k, numeric_types):
                 str_k = k.__str__()
             else:

@@ -14,6 +14,7 @@ class JSONBackend(object):
     demjson is the most permissive backend and is tried last.
 
     """
+
     def __init__(self, fallthrough=True):
         # Whether we should fallthrough to the next backend
         self._fallthrough = fallthrough
@@ -36,20 +37,12 @@ class JSONBackend(object):
         # Whether we've loaded any backends successfully
         self._verified = False
 
-        self.load_backend('simplejson')
         self.load_backend('json')
-        self.load_backend('demjson', 'encode', 'decode', 'JSONDecodeError')
-        self.load_backend('jsonlib', 'write', 'read', 'ReadError')
-        self.load_backend('yajl')
-        self.load_backend('ujson')
 
         # Defaults for various encoders
-        json_opts = ((), {'sort_keys': True})
+        json_opts = ((), {'sort_keys': False})
         self._encoder_options = {
-            'ujson': ((), {'sort_keys': True, 'escape_forward_slashes': False}),
             'json': json_opts,
-            'simplejson': json_opts,
-            'django.util.simplejson': json_opts,
         }
 
     def _verify(self):
@@ -167,6 +160,7 @@ class JSONBackend(object):
             except Exception as e:
                 if idx == len(self._backend_names) - 1:
                     raise e
+
     # def dumps
     dumps = encode
 
@@ -198,6 +192,7 @@ class JSONBackend(object):
                     raise e
                 else:
                     pass  # and try a more forgiving encoder, e.g. demjson
+
     # def loads
     loads = decode
 
@@ -225,6 +220,10 @@ class JSONBackend(object):
 
         """
         if name in self._backend_names:
+            if name != 'json':
+                from warnings import warn
+                warn('WARNING: Only the json backend has been tested.')
+
             self._backend_names.remove(name)
             self._backend_names.insert(0, name)
         else:
@@ -248,6 +247,14 @@ class JSONBackend(object):
         the supported arguments and keyword arguments.
 
         """
+        if 'sort_keys' in kwargs and kwargs['sort_keys']:
+            from warnings import warn
+            warn('Using sort_keys=True may result in undefined '
+                 'behaviour. If you want to sort the dict keys, '
+                 'please pre-process your object before encoding '
+                 'it. Otherwise, the official jsonpickle package '
+                 'has this behaviour.')
+
         self._encoder_options[name] = (args, kwargs)
 
     def set_decoder_options(self, name, *args, **kwargs):

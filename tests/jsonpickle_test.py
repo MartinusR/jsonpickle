@@ -1540,6 +1540,23 @@ class PicklingProtocol2TestCase(SkippableTest):
     def test_cyclical_objects_unpickleable_false_list(self):
         self.test_cyclical_objects_unpickleable_false(use_tuple=False)
 
+    def test_pickle_keeps_keys_order(self):
+        main_dict = {str(i): 2*i-45 for i in range(5, 0, -1)}
+        sub_dict = {'z': 4, 'f': 5, 'a': 7, 'b': 48}
+
+        main_dict['sub_dict'] = sub_dict
+
+        pickle = jsonpickle.encode(main_dict)
+        new_dict = jsonpickle.decode(pickle)
+
+        key_comp = tuple(main_dict.keys()) == tuple(new_dict.keys())
+        sub_comp = tuple(sub_dict.keys()) == tuple(new_dict['sub_dict'].keys())
+        full_comp = new_dict == main_dict
+
+        self.assertTrue(key_comp)
+        self.assertTrue(sub_comp)
+        self.assertTrue(full_comp)
+
 
 def suite():
     suite = unittest.TestSuite()
