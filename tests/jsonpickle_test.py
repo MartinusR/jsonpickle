@@ -40,7 +40,8 @@ class ThingWithProps(object):
 
     def __init__(self, name='', dogs='reliable', monkies='tricksy'):
         self.name = name
-        self._critters = (('dogs', dogs), ('monkies', monkies))
+        self._critters = (('dogs', dogs),
+                          ('monkies', monkies))
 
     def _get_identity(self):
         keys = [self.dogs, self.monkies, self.name]
