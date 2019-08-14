@@ -6,7 +6,7 @@
    :target: http://jsonpickle.github.io/
    :alt: docs
    
-.. image:: https://travis-ci.org/jsonpickle/jsonpickle.svg?branch=master
+.. image:: https://travis-ci.com/MartinusR/jsonpickle.svg?branch=master
    :target: https://travis-ci.org/jsonpickle/jsonpickle
    :alt: travis
 

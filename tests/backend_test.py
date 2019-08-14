@@ -77,49 +77,6 @@ class JsonTestCase(BackendBase):
         self.assertEncodeDecode(expected_pickled)
 
 
-class SimpleJsonTestCase(BackendBase):
-    def setUp(self):
-        self.set_preferred_backend('simplejson')
-
-    def test_backend(self):
-        expected_pickled = (
-            '{"things": [{'
-            '"py/object": "backend_test.Thing", '
-            '"name": "data", '
-            '"child": null}'
-            ']}')
-        self.assertEncodeDecode(expected_pickled)
-
-    def test_decimal(self):
-        # Default behavior: Decimal is preserved
-        obj = decimal.Decimal(0.5)
-        as_json = jsonpickle.dumps(obj)
-        clone = jsonpickle.loads(as_json)
-        self.assertTrue(isinstance(clone, decimal.Decimal))
-        self.assertEqual(obj, clone)
-
-        # Custom behavior: we want to use simplejson's Decimal support.
-        jsonpickle.set_encoder_options('simplejson',
-                                       use_decimal=True, sort_keys=True)
-
-        jsonpickle.set_decoder_options('simplejson',
-                                       use_decimal=True)
-
-        # use_decimal mode allows Decimal objects to pass-through to simplejson.
-        # The end result is we get a simple '0.5' value as our json string.
-        as_json = jsonpickle.dumps(obj, unpicklable=True, use_decimal=True)
-        self.assertEqual(as_json, '0.5')
-        # But when loading we get back a Decimal.
-        clone = jsonpickle.loads(as_json)
-        self.assertTrue(isinstance(clone, decimal.Decimal))
-
-        # side-effect: floats become decimals too!
-        obj = 0.5
-        as_json = jsonpickle.dumps(obj)
-        clone = jsonpickle.loads(as_json)
-        self.assertTrue(isinstance(clone, decimal.Decimal))
-
-
 def has_module(module):
     try:
         __import__(module)
@@ -130,83 +87,9 @@ def has_module(module):
     return True
 
 
-class DemjsonTestCase(BackendBase):
-
-    def setUp(self):
-        self.set_preferred_backend('demjson')
-
-    def test_backend(self):
-        expected_pickled = compat.ustr(
-            '{"things":[{'
-            '"child":null,'
-            '"name":"data",'
-            '"py/object":"backend_test.Thing"}'
-            ']}')
-        self.assertEncodeDecode(expected_pickled)
-
-    def test_int_dict_keys_with_numeric_keys(self):
-        jsonpickle.set_encoder_options('demjson', strict=False)
-        int_dict = {1000: [1, 2]}
-        pickle = jsonpickle.encode(int_dict, numeric_keys=True)
-        actual = jsonpickle.decode(pickle)
-        self.assertEqual(actual[1000], [1, 2])
-
-
-class JsonlibTestCase(BackendBase):
-    def setUp(self):
-        if PY2:
-            self.set_preferred_backend('jsonlib')
-
-    def test_backend(self):
-        if PY3:
-            return self.skip('no jsonlib for python3')
-        expected_pickled = (
-            '{"things":[{'
-            r'"py\/object":"backend_test.Thing",'
-            '"name":"data","child":null}'
-            ']}')
-        self.assertEncodeDecode(expected_pickled)
-
-
-class YajlTestCase(BackendBase):
-    def setUp(self):
-        self.set_preferred_backend('yajl')
-
-    def test_backend(self):
-        expected_pickled = (
-            '{"things":[{'
-            '"py/object":"backend_test.Thing",'
-            '"name":"data","child":null}'
-            ']}')
-        self.assertEncodeDecode(expected_pickled)
-
-
-class UJsonTestCase(BackendBase):
-
-    def setUp(self):
-        self.set_preferred_backend('ujson')
-
-    def test_backend(self):
-        expected_pickled = (
-            '{"things":[{'
-            r'"py\/object":"backend_test.Thing",'
-            '"name":"data","child":null}'
-            ']}')
-        self.assertEncodeDecode(expected_pickled)
-
-
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(JsonTestCase))
-    suite.addTest(unittest.makeSuite(UJsonTestCase))
-    suite.addTest(unittest.makeSuite(SimpleJsonTestCase))
-    if has_module('demjson'):
-        suite.addTest(unittest.makeSuite(DemjsonTestCase))
-    if has_module('yajl'):
-        suite.addTest(unittest.makeSuite(YajlTestCase))
-    if PY2:
-        if has_module('jsonlib'):
-            suite.addTest(unittest.makeSuite(JsonlibTestCase))
     return suite
 
 
