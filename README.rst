@@ -15,8 +15,12 @@
    :alt: BSD   
 
    
-jsonpickle
-==========
+jsonpickle (original library)
+==============================
+
+Here is information about the original jsonpickle library, that can be found
+`here <https://github.com/jsonpickle/jsonpickle>`_.
+
 jsonpickle is a library for the two-way conversion of complex Python objects
 and `JSON <http://json.org/>`_.  jsonpickle builds upon the existing JSON
 encoders, such as simplejson, json, and demjson.
@@ -28,6 +32,20 @@ Bug reports and merge requests are encouraged at the
 `jsonpickle repository on github <https://github.com/jsonpickle/jsonpickle>`_.
 
 jsonpickle supports Python 2.7 and Python 3.4 or greater.
+
+
+Modifications in this repository
+================================
+
+This forked repository brings one major change: it **preserves dictionary keys order when pickling**.
+As discussed `here <https://stackoverflow.com/questions/5629023/the-order-of-keys-in-dictionaries>`_,
+insertion key order preservation is now the rule in recent Python versions.
+
+Though, in order to ensure this order preservation, only Python 3.6 and 3.7 are supported.
+The only supported backend is the *native* one: json module.
+Finally, setting `sort_keys` to True in the backend encoder options is no longer supported:
+this breaks the wanted behaviour, and may result in undefined behaviour.
+
 
 Why jsonpickle?
 ===============
